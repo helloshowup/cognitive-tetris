@@ -1,0 +1,13 @@
+{
+  "name": "cognitive-tetris",
+  "version": "1.0.0",
+  "description": "The Monotropic 24-Hour Cognitive Canvas — Non-Chronological Tetris Engine",
+  "private": true,
+  "scripts": {
+    "test": "echo \"Running UI consistency static check...\" && node scripts/check-ui.js",
+    "build": "echo \"Static build ready\"",
+    "start": "npx serve ."
+  },
+  "author": "helloshowup",
+  "license": "UNLICENSED"
+}

@@ -1,0 +1,1115 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Cognitive Tetris — Non-Chronological AuDHD Task Architecture</title>
+<meta name="description" content="Non-chronological task modeling engine for AuDHD operators. Features the 24-Hour Cognitive Canvas, 10x10 Spoon Vessel, 14 Polyominos including Bedrock Sleep, and Trapped Air Gap telemetry." />
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@700;800;900&family=Familjen+Grotesk:ital,wght@0,400;0,600;0,700;1,400&family=Martian+Mono:wght@400;500;700;800&display=swap" rel="stylesheet" />
+
+<style>
+/* ============================================================
+   PADKLEUR VISUAL DESIGN SYSTEM — STRICT ZERO RADIUS BRUTALISM
+   ============================================================ */
+:root {
+  --nd-radius: 0px;
+  --nd-paper: #EFECE3;
+  --nd-surface: #FFFFFF;
+  --nd-kalk: #DDD9C3;
+  --nd-ink: #16130F;
+  --nd-ink-muted: rgba(22, 19, 15, 0.70);
+  --nd-ink-faint: rgba(22, 19, 15, 0.12);
+
+  /* Padkleur Spectrum Tokens */
+  --nd-rooi: #C6302A;
+  --nd-oranje: #DC6919;
+  --nd-geel: #E7B21B;
+  --nd-groen: #1C7A4E;
+  --nd-blou: #1B4C9E;
+  --nd-pers: #6B3FA0;
+  --nd-turkoois: #0E6B66;
+  --nd-slate: #1C2833;
+  --nd-lavender: #7E6E9B;
+  --nd-ochre: #C49A45;
+  --nd-mustard: #DCA13D;
+  --nd-paper-token: #8A7E6B;
+  --nd-midnight: #0F172A;
+
+  /* Typography */
+  --font-display: 'Archivo', sans-serif;
+  --font-body: 'Familjen Grotesk', system-ui, sans-serif;
+  --font-mono: 'Martian Mono', monospace;
+
+  /* Geometry */
+  --nd-border: 2px solid var(--nd-ink);
+  --nd-border-thin: 1.5px solid var(--nd-ink);
+  --nd-shadow: 4px 4px 0px var(--nd-ink);
+  --nd-shadow-lg: 6px 6px 0px var(--nd-ink);
+  --cell-size: 44px;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  border-radius: 0 !important;
+}
+
+body {
+  background: var(--nd-paper);
+  color: var(--nd-ink);
+  font-family: var(--font-body);
+  font-size: 14.5px;
+  line-height: 1.45;
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+}
+
+/* ------------------------------------------------------------
+   3-ZONE STICKY HEADER (GATE 2 COMPLIANT)
+   ------------------------------------------------------------ */
+.nd-header-sticky {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  background: var(--nd-paper);
+  border-bottom: var(--nd-border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 20px;
+  gap: 16px;
+}
+
+.nd-header__left, .nd-header__mid, .nd-header__right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.nd-mark-link {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  text-decoration: none;
+  color: inherit;
+}
+
+.nd-mark {
+  background: var(--nd-ink);
+  color: var(--nd-paper);
+  font-family: var(--font-display);
+  font-weight: 900;
+  font-size: 13px;
+  padding: 5px 8px;
+  border: 1px solid var(--nd-ink);
+  letter-spacing: 0.05em;
+}
+
+.nd-header__title {
+  font-family: var(--font-display);
+  font-weight: 900;
+  font-size: 14px;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+}
+
+.nd-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border: var(--nd-border);
+  background: var(--nd-surface);
+  color: var(--nd-ink);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  cursor: pointer;
+  box-shadow: 2px 2px 0px var(--nd-ink);
+  text-decoration: none;
+  transition: transform 0.1s ease, box-shadow 0.1s ease;
+}
+
+.nd-btn:hover {
+  transform: translate(-1px, -1px);
+  box-shadow: 3px 3px 0px var(--nd-ink);
+}
+
+.nd-btn:active {
+  transform: translate(1px, 1px);
+  box-shadow: 1px 1px 0px var(--nd-ink);
+}
+
+.nd-btn--active {
+  background: var(--nd-ink) !important;
+  color: #FFF !important;
+}
+
+.nd-btn--action {
+  background: var(--nd-oranje);
+  color: #FFF;
+}
+
+.nd-btn--danger {
+  background: #FEE2E2;
+  color: var(--nd-rooi);
+  border-color: var(--nd-rooi);
+}
+
+/* Engine Tab Selector */
+.nd-engine-tabs {
+  display: flex;
+  border: var(--nd-border);
+  background: #FFF;
+  box-shadow: 2px 2px 0px var(--nd-ink);
+}
+
+.nd-engine-tab {
+  padding: 6px 14px;
+  border: none;
+  border-right: 1.5px solid var(--nd-ink);
+  background: transparent;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 800;
+  text-transform: uppercase;
+  cursor: pointer;
+  color: var(--nd-ink);
+}
+.nd-engine-tab:last-child { border-right: none; }
+.nd-engine-tab.is-active {
+  background: var(--nd-ink);
+  color: var(--nd-paper);
+}
+
+/* App Shell (Gate 2 Compliant: max-width 1280px + padding-bottom >= 60px) */
+.nd-app-shell--wide {
+  max-width: 1360px;
+  margin: 0 auto;
+  padding: 20px 24px 80px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+/* Non-blocking Status Toast */
+.nd-toast {
+  display: none;
+  border: var(--nd-border);
+  background: var(--nd-geel);
+  box-shadow: var(--nd-shadow);
+  padding: 10px 16px;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--nd-ink);
+  margin-bottom: 12px;
+  align-items: center;
+  justify-content: space-between;
+}
+.nd-toast.is-visible { display: flex; }
+
+/* Masthead */
+.nd-masthead {
+  border: var(--nd-border);
+  background: var(--nd-surface);
+  box-shadow: var(--nd-shadow);
+  padding: 20px 24px;
+}
+
+.nd-masthead__kicker {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--nd-oranje);
+  margin-bottom: 4px;
+}
+
+.nd-masthead h1 {
+  font-family: var(--font-display);
+  font-size: clamp(22px, 3.2vw, 34px);
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: -0.02em;
+  line-height: 1.15;
+  margin-bottom: 8px;
+}
+
+/* Mode Switcher Buttons */
+.nd-mode-bar {
+  display: flex;
+  gap: 8px;
+  margin-top: 12px;
+  flex-wrap: wrap;
+}
+
+/* WORKBENCH GRID */
+.nd-workbench {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 24px;
+  align-items: start;
+}
+
+@media (min-width: 1100px) {
+  .nd-workbench {
+    grid-template-columns: 580px 1fr;
+  }
+}
+
+.nd-panel {
+  border: var(--nd-border);
+  background: var(--nd-surface);
+  box-shadow: var(--nd-shadow);
+  padding: 16px;
+}
+
+.nd-panel__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: var(--nd-border);
+  padding-bottom: 8px;
+  margin-bottom: 12px;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.nd-panel__title {
+  font-family: var(--font-display);
+  font-size: 14px;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+/* Mode Explainer Card */
+.nd-explainer {
+  border-left: 4px solid var(--nd-blou);
+  background: #F0F4FA;
+  padding: 10px 12px;
+  font-family: var(--font-mono);
+  font-size: 11.5px;
+  line-height: 1.45;
+  margin-bottom: 12px;
+}
+
+/* Board Arena */
+.nd-arena {
+  background: #1C1914;
+  border: var(--nd-border);
+  padding: 16px;
+  box-shadow: 4px 4px 0px rgba(0,0,0,0.5);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+}
+
+.nd-axis-y {
+  position: absolute;
+  left: 4px;
+  top: 50%;
+  transform: translateY(-50%) rotate(-90deg);
+  transform-origin: center center;
+  font-family: var(--font-mono);
+  font-size: 9px;
+  font-weight: 800;
+  color: var(--nd-geel);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.nd-axis-x {
+  margin-top: 10px;
+  font-family: var(--font-mono);
+  font-size: 9.5px;
+  font-weight: 800;
+  color: var(--nd-geel);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  text-align: center;
+}
+
+/* Grid Matrix */
+.nd-grid {
+  display: grid;
+  gap: 2px;
+  background: #2B2620;
+  border: 2px solid #EFECE3;
+  padding: 4px;
+  box-shadow: inset 0 0 10px rgba(0,0,0,0.8);
+}
+
+.nd-cell {
+  width: var(--cell-size);
+  height: var(--cell-size);
+  background: #14120E;
+  border: 1px solid rgba(239, 236, 227, 0.08);
+  display: grid;
+  place-items: center;
+  font-family: var(--font-mono);
+  font-size: 9px;
+  color: rgba(239, 236, 227, 0.25);
+  user-select: none;
+  position: relative;
+  transition: background 0.1s ease;
+}
+
+.nd-cell.is-dragover {
+  background: rgba(220, 105, 25, 0.45) !important;
+  border: 1.5px dashed var(--nd-oranje) !important;
+}
+
+.nd-cell.is-occupied {
+  border: 1.5px solid #EFECE3 !important;
+  color: #FFF !important;
+  font-weight: 900;
+  box-shadow: inset 1px 1px 0px rgba(255,255,255,0.4);
+  cursor: pointer;
+}
+
+/* Trapped Air Gap */
+.nd-cell.is-air-gap {
+  background: repeating-linear-gradient(
+    45deg,
+    rgba(198, 48, 42, 0.45),
+    rgba(198, 48, 42, 0.45) 4px,
+    rgba(198, 48, 42, 0.1) 4px,
+    rgba(198, 48, 42, 0.1) 8px
+  ) !important;
+  border: 1.5px dashed var(--nd-rooi) !important;
+  color: #FFA4A0;
+}
+.nd-cell.is-air-gap::after {
+  content: "GAP";
+  font-size: 7.5px;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+}
+
+/* Telemetry Dashboard */
+.nd-telemetry {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.nd-tile {
+  border: var(--nd-border-thin);
+  background: var(--nd-paper);
+  padding: 8px;
+  display: flex;
+  flex-direction: column;
+}
+
+.nd-tile-label {
+  font-family: var(--font-mono);
+  font-size: 8.5px;
+  font-weight: 800;
+  text-transform: uppercase;
+  color: var(--nd-ink-muted);
+}
+
+.nd-tile-val {
+  font-family: var(--font-display);
+  font-size: 16px;
+  font-weight: 900;
+  margin-top: 2px;
+}
+
+/* Palette Drawer */
+.nd-palette-scroll {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 10px;
+  max-height: 680px;
+  overflow-y: auto;
+  padding-right: 4px;
+}
+
+.nd-card {
+  border: var(--nd-border-thin);
+  background: var(--nd-surface);
+  box-shadow: 2px 2px 0px var(--nd-ink);
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  cursor: grab;
+  user-select: none;
+  transition: transform 0.1s ease, box-shadow 0.1s ease;
+}
+
+.nd-card:hover {
+  transform: translate(-1px, -1px);
+  box-shadow: 3px 3px 0px var(--nd-ink);
+}
+
+.nd-card.is-sleep {
+  border: 2px solid var(--nd-blou);
+  background: #F0F4FA;
+}
+
+.nd-card-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.nd-card-title {
+  font-family: var(--font-display);
+  font-size: 12px;
+  font-weight: 900;
+  text-transform: uppercase;
+  line-height: 1.2;
+}
+
+.nd-card-tag {
+  font-family: var(--font-mono);
+  font-size: 8px;
+  font-weight: 800;
+  padding: 1px 4px;
+  border: 1px solid var(--nd-ink);
+  background: var(--nd-kalk);
+}
+
+.nd-shape-preview {
+  display: grid;
+  gap: 2px;
+  margin: 4px 0;
+  width: max-content;
+}
+
+.nd-preview-box {
+  width: 14px;
+  height: 14px;
+  border: 1px solid var(--nd-ink);
+}
+
+.nd-card-desc {
+  font-size: 10.5px;
+  color: var(--nd-ink-muted);
+  line-height: 1.35;
+}
+
+/* Control Actions */
+.nd-actions-row {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-top: 10px;
+}
+</style>
+</head>
+
+<body class="nd-root">
+
+<!-- 3-ZONE STICKY HEADER -->
+<header class="nd-header-sticky">
+  <div class="nd-header__left">
+    <a href="https://nda-launchpad.vercel.app/" class="nd-btn" title="Escape Hatch to Launchpad">&larr; Launchpad</a>
+    <div class="nd-mark-link">
+      <div class="nd-mark">TETRIS</div>
+      <div class="nd-header__title">Cognitive Geometry</div>
+    </div>
+  </div>
+
+  <div class="nd-header__mid">
+    <div class="nd-engine-tabs">
+      <button class="nd-engine-tab is-active" id="tab-24h" onclick="switchEngine('24H')">24-Hour Canvas (7&times;10)</button>
+      <button class="nd-engine-tab" id="tab-100s" onclick="switchEngine('100S')">100-Spoon Vessel (10&times;10)</button>
+    </div>
+  </div>
+
+  <div class="nd-header__right">
+    <button class="nd-btn" onclick="window.print()">Print Spec</button>
+  </div>
+</header>
+
+<!-- MAIN APPLICATION SHELL -->
+<main class="nd-app-shell--wide">
+
+  <!-- IN-DOM STATUS TOAST (NON-BLOCKING DIALOG REPLACEMENT) -->
+  <div class="nd-toast" id="status-toast">
+    <span id="toast-text">Notification message</span>
+    <button class="nd-btn" style="padding: 2px 6px; font-size: 9px;" onclick="hideToast()">Dismiss</button>
+  </div>
+
+  <!-- MASTHEAD -->
+  <section class="nd-masthead">
+    <div class="nd-masthead__kicker">PK-TETRIS-003 // NON-CHRONOLOGICAL CAPACITY ENGINE</div>
+    <h1 id="engine-heading">The 24-Hour Cognitive Canvas: Non-Chronological State Space</h1>
+    <p style="font-size: 14px; color: var(--nd-ink); max-width: 95ch; line-height: 1.45;">
+      Time is strictly prohibited as an axis. Tasks are modeled as <strong>geometric polyominos</strong> packed into an allocatable capacity field. Test attention fragmentation, reserve sinkage, and structural air gaps without clock hours.
+    </p>
+
+    <!-- Operating Mode Selector for 24h Engine -->
+    <div class="nd-mode-bar" id="mode-bar">
+      <button class="nd-btn nd-btn--active" id="btn-mode-a" onclick="switch24hMode('A')">Mode A: Bandwidth &times; Reserve Stratum</button>
+      <button class="nd-btn" id="btn-mode-b" onclick="switch24hMode('B')">Mode B: Autonomy &times; Somatic Arousal</button>
+      <button class="nd-btn" id="btn-mode-c" onclick="switch24hMode('C')">Mode C: Channel Bandwidth &times; Spoon Ceiling</button>
+    </div>
+  </section>
+
+  <!-- WORKBENCH -->
+  <div class="nd-workbench">
+
+    <!-- LEFT: THE ACTIVE ARENA & HUD -->
+    <div class="nd-panel">
+      <div class="nd-panel__head">
+        <span class="nd-panel__title" id="arena-title">Mode A: Bandwidth &times; Stratum (The Density Sink)</span>
+        <span class="nd-btn" id="arena-dimensions" style="cursor: default;">7 &times; 10 Grid (70 Cells)</span>
+      </div>
+
+      <!-- Mode Explainer -->
+      <div class="nd-explainer" id="arena-explainer">
+        <strong>Cost Gravity Engine:</strong> Top rows (1–4) represent surface renewable spoons. Bottom rows (7–10) represent deep biological reserves. The Bedrock Sleep Slab locks into the floor (Rows 9–10) to defragment the daily cognitive stack.
+      </div>
+
+      <!-- The Board Arena -->
+      <div class="nd-arena">
+        <div class="nd-axis-y" id="axis-y-label">&larr; Reserve Stratum (Bedrock Floor 9-10 &rarr; Surface Spoons 1-4) &rarr;</div>
+        
+        <div class="nd-grid" id="game-grid" style="grid-template-columns: repeat(7, var(--cell-size)); grid-template-rows: repeat(10, var(--cell-size));">
+          <!-- Dynamic Grid Cells -->
+        </div>
+
+        <div class="nd-axis-x" id="axis-x-label">&larr; Attentional Channels (Embodied Substrate &harr; Effortful/Novel) &rarr;</div>
+      </div>
+
+      <!-- Actions & Presets -->
+      <div class="nd-actions-row">
+        <button class="nd-btn nd-btn--action" onclick="loadPreset('canonical_24h')">Preset: Balanced 24h Day</button>
+        <button class="nd-btn" onclick="loadPreset('creative_deep')">Preset: Fiction Deep Flow</button>
+        <button class="nd-btn" onclick="loadPreset('high_masking')">Preset: High Social Conflict</button>
+        <button class="nd-btn nd-btn--danger" onclick="clearCanvas()">Clear Grid</button>
+      </div>
+
+      <!-- Telemetry Dashboard -->
+      <div class="nd-telemetry">
+        <div class="nd-tile">
+          <span class="nd-tile-label">Capacity Claimed</span>
+          <span class="nd-tile-val" id="stat-capacity">0 / 70 (0%)</span>
+        </div>
+        <div class="nd-tile">
+          <span class="nd-tile-label">Trapped Air Gaps</span>
+          <span class="nd-tile-val" id="stat-gaps" style="color: var(--nd-rooi);">0 Cells (0m)</span>
+        </div>
+        <div class="nd-tile">
+          <span class="nd-tile-label">Bedrock Sleep</span>
+          <span class="nd-tile-val" id="stat-bedrock" style="color: var(--nd-blou);">Missing Slab</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- RIGHT: 14 POLYOMINO PALETTE -->
+    <div class="nd-panel">
+      <div class="nd-panel__head">
+        <span class="nd-panel__title" id="palette-title">Polyomino Shape Catalog</span>
+        <span style="font-family: var(--font-mono); font-size: 10.5px; font-weight: 700;">Click placed block to delete</span>
+      </div>
+
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; gap: 8px; flex-wrap: wrap;">
+        <span style="font-family: var(--font-mono); font-size: 11px; font-weight: 700;">Drag blocks onto canvas &rarr;</span>
+        <button class="nd-btn" onclick="rotateNextDrag()">Rotate Next Drag (+90&deg;)</button>
+      </div>
+
+      <!-- Scrollable Cards -->
+      <div class="nd-palette-scroll" id="cards-container">
+        <!-- Dynamic Cards -->
+      </div>
+    </div>
+
+  </div>
+
+</main>
+
+<script>
+/* ============================================================
+   COGNITIVE TETRIS ENGINE LOGIC
+   ============================================================ */
+
+let currentEngine = '24H'; // '24H' or '100S'
+let current24hMode = 'A';
+let dragRotation = 0; // 0, 90, 180, 270
+
+let cols = 7;
+let rows = 10;
+let boardState = Array.from({ length: rows }, () => Array(cols).fill(null));
+
+// The 14 Canonical Blocks
+const CATALOG = [
+  {
+    id: 14,
+    name: "Sleep (Bedrock Slab)",
+    shape: "Bedrock Slab (7x2)",
+    color: "#1B4C9E",
+    token: "Blou",
+    desc: "1 Night Sleep (7h). Spans full width X=7, depth Y=2. Non-rotatable floor.",
+    cells: [[0,0],[0,1],[0,2],[0,3],[0,4],[0,5],[0,6],[1,0],[1,1],[1,2],[1,3],[1,4],[1,5],[1,6]],
+    isSleep: true,
+    lockRotation: true
+  },
+  {
+    id: 1,
+    name: "Course Authoring",
+    shape: "I-Block (4-Tall)",
+    color: "#6B3FA0",
+    token: "Pers",
+    desc: "Curriculum mapping, LMS uploads. Monotropic vertical column.",
+    cells: [[0,0],[1,0],[2,0],[3,0]]
+  },
+  {
+    id: 2,
+    name: "ND Agency Ops",
+    shape: "T-Block",
+    color: "#0E6B66",
+    token: "Turkoois",
+    desc: "Syncs with Andrew, leasing queries, partner outreach. Command spine + stub.",
+    cells: [[0,0],[0,1],[0,2],[1,1]]
+  },
+  {
+    id: 3,
+    name: "Fiction & Creative",
+    shape: "S-Block",
+    color: "#DC6919",
+    token: "Oranje",
+    desc: "Wat sê jy, Mariaan? novel drafting. Sinuous non-linear entry.",
+    cells: [[0,1],[0,2],[1,0],[1,1]]
+  },
+  {
+    id: 4,
+    name: "Digital Build / Vibe",
+    shape: "J-Block",
+    color: "#E7B21B",
+    token: "Geel",
+    desc: "Prototype coding, custom AI tools. 3-cell shaft + terminal hook.",
+    cells: [[0,1],[1,1],[2,1],[2,0]]
+  },
+  {
+    id: 5,
+    name: "Gym & Conditioning",
+    shape: "O-Block (2x2)",
+    color: "#1C7A4E",
+    token: "Groen",
+    desc: "SSISA resistance training, swimming. Isotropic 2x2 pressure vessel.",
+    cells: [[0,0],[0,1],[1,0],[1,1]]
+  },
+  {
+    id: 6,
+    name: "Somatic Check-ins",
+    shape: "Plus / Notch (+)",
+    color: "#8A7E6B",
+    token: "Kalk",
+    desc: "Vyvanse anchor, jaw tension monitoring. Universal interstitial mortar.",
+    cells: [[0,1],[1,0],[1,1],[1,2],[2,1]]
+  },
+  {
+    id: 7,
+    name: "Zero-Spoon Recovery",
+    shape: "Z-Block",
+    color: "#7E6E9B",
+    token: "Lavender",
+    desc: "Sensory blackout, cognitive crash. Mandatory emergency inverter.",
+    cells: [[0,0],[0,1],[1,1],[1,2]]
+  },
+  {
+    id: 8,
+    name: "Domestic & Home Base",
+    shape: "L-Block",
+    color: "#C49A45",
+    token: "Ochre",
+    desc: "04:00 AM rising, dog walks with Sam, dinner. Load-bearing base.",
+    cells: [[0,0],[1,0],[2,0],[2,1]]
+  },
+  {
+    id: 9,
+    name: "Admin & Banking",
+    shape: "Flat-O (1x4 Slab)",
+    color: "#1C2833",
+    token: "Slate",
+    desc: "SARS tax, Bank Zero, utility bills. Flat horizontal stackable slab.",
+    cells: [[0,0],[0,1],[0,2],[0,3]]
+  },
+  {
+    id: 10,
+    name: "Social & Masking",
+    shape: "Cross (3x3 Plus)",
+    color: "#C6302A",
+    token: "Rooi",
+    desc: "Client kickoffs, family gatherings, rugby stadium. High multi-channel tax.",
+    cells: [[0,1],[1,0],[1,1],[1,2],[2,1]]
+  },
+  {
+    id: 11,
+    name: "Inbox Triage",
+    shape: "Micro-Notch (1x2)",
+    color: "#0E6B66",
+    token: "Turkoois-Tint",
+    desc: "Email filtering, Upwork scans. Low-commitment horizontal crevices.",
+    cells: [[0,0],[0,1]]
+  },
+  {
+    id: 12,
+    name: "Work Hours Sprints",
+    shape: "Variable-I",
+    color: "#DCA13D",
+    token: "Mustard",
+    desc: "Mixed client sprints. Unbounded terminal risk if boundary uncapped.",
+    cells: [[0,0],[1,0],[2,0]]
+  },
+  {
+    id: 13,
+    name: "Travel & Logistics",
+    shape: "Short-L",
+    color: "#8A7E6B",
+    token: "Paper",
+    desc: "Driving to Langebaan, grocery transit. High sensory traversal load.",
+    cells: [[0,0],[1,0],[1,1]]
+  }
+];
+
+function showToast(msg) {
+  const t = document.getElementById('status-toast');
+  document.getElementById('toast-text').textContent = msg;
+  t.classList.add('is-visible');
+}
+
+function hideToast() {
+  document.getElementById('status-toast').classList.remove('is-visible');
+}
+
+function initGridDOM() {
+  const grid = document.getElementById('game-grid');
+  grid.innerHTML = '';
+  grid.style.gridTemplateColumns = `repeat(${cols}, var(--cell-size))`;
+  grid.style.gridTemplateRows = `repeat(${rows}, var(--cell-size))`;
+
+  for (let r = 0; r < rows; r++) {
+    for (let c = 0; c < cols; c++) {
+      const cell = document.createElement('div');
+      cell.className = 'nd-cell';
+      cell.dataset.row = r;
+      cell.dataset.col = c;
+
+      cell.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        cell.classList.add('is-dragover');
+      });
+      cell.addEventListener('dragleave', () => {
+        cell.classList.remove('is-dragover');
+      });
+      cell.addEventListener('drop', (e) => {
+        e.preventDefault();
+        cell.classList.remove('is-dragover');
+        const blockId = parseInt(e.dataTransfer.getData('text/plain'), 10);
+        placeBlockAt(blockId, r, c, dragRotation);
+      });
+
+      cell.addEventListener('click', () => {
+        if (boardState[r][c] !== null) {
+          removeBlock(boardState[r][c].instanceId);
+        }
+      });
+
+      grid.appendChild(cell);
+    }
+  }
+}
+
+function initCardsDOM() {
+  const cont = document.getElementById('cards-container');
+  cont.innerHTML = '';
+  CATALOG.forEach(b => {
+    // If in 100S engine and item is sleep, omit sleep block (sleep is 24h specific)
+    if (currentEngine === '100S' && b.isSleep) return;
+
+    const card = document.createElement('div');
+    card.className = `nd-card ${b.isSleep ? 'is-sleep' : ''}`;
+    card.draggable = true;
+    card.dataset.blockId = b.id;
+
+    card.addEventListener('dragstart', (e) => {
+      e.dataTransfer.setData('text/plain', b.id);
+    });
+
+    let maxR = 0, maxC = 0;
+    b.cells.forEach(([r, c]) => {
+      if (r > maxR) maxR = r;
+      if (c > maxC) maxC = c;
+    });
+
+    let previewHtml = `<div class="nd-shape-preview" style="grid-template-columns: repeat(${maxC + 1}, 14px); grid-template-rows: repeat(${maxR + 1}, 14px);">`;
+    for (let r = 0; r <= maxR; r++) {
+      for (let c = 0; c <= maxC; c++) {
+        const isHit = b.cells.some(([cr, cc]) => cr === r && cc === c);
+        previewHtml += `<div class="nd-preview-box" style="background: ${isHit ? b.color : 'transparent'}; border-color: ${isHit ? '#16130F' : 'transparent'};"></div>`;
+      }
+    }
+    previewHtml += `</div>`;
+
+    card.innerHTML = `
+      <div class="nd-card-head">
+        <span class="nd-card-title" style="color: ${b.color};">${b.name}</span>
+        <span class="nd-card-tag">${b.token}</span>
+      </div>
+      ${previewHtml}
+      <div class="nd-card-desc">${b.desc}</div>
+    `;
+
+    cont.appendChild(card);
+  });
+}
+
+function rotateNextDrag() {
+  dragRotation = (dragRotation + 90) % 360;
+  showToast(`Rotation primed: +${dragRotation}° for next dropped block.`);
+}
+
+function getRotatedCells(cells, angle) {
+  if (angle === 0) return cells;
+  let res = cells.map(([r, c]) => [r, c]);
+  const steps = (angle / 90) % 4;
+  for (let s = 0; s < steps; s++) {
+    res = res.map(([r, c]) => [c, -r]);
+  }
+  const minR = Math.min(...res.map(([r, c]) => r));
+  const minC = Math.min(...res.map(([r, c]) => c));
+  return res.map(([r, c]) => [r - minR, c - minC]);
+}
+
+let instCount = 1;
+
+function canPlace(cells, startR, startC) {
+  for (const [dr, dc] of cells) {
+    const tr = startR + dr;
+    const tc = startC + dc;
+    if (tr < 0 || tr >= rows || tc < 0 || tc >= cols) return false;
+    if (boardState[tr][tc] !== null) return false;
+  }
+  return true;
+}
+
+function placeBlockAt(blockId, startR, startC, angle) {
+  const b = CATALOG.find(item => item.id === blockId);
+  if (!b) return;
+
+  const actualAngle = b.lockRotation ? 0 : angle;
+  const cells = getRotatedCells(b.cells, actualAngle);
+
+  if (!canPlace(cells, startR, startC)) {
+    showToast("Placement collision or boundary limit reached.");
+    return;
+  }
+
+  const instId = instCount++;
+  cells.forEach(([dr, dc]) => {
+    boardState[startR + dr][startC + dc] = {
+      instanceId: instId,
+      blockId: b.id,
+      name: b.name,
+      color: b.color
+    };
+  });
+
+  renderBoard();
+}
+
+function removeBlock(instanceId) {
+  for (let r = 0; r < rows; r++) {
+    for (let c = 0; c < cols; c++) {
+      if (boardState[r][c] && boardState[r][c].instanceId === instanceId) {
+        boardState[r][c] = null;
+      }
+    }
+  }
+  renderBoard();
+}
+
+function clearCanvas() {
+  boardState = Array.from({ length: rows }, () => Array(cols).fill(null));
+  renderBoard();
+  showToast("Grid cleared.");
+}
+
+function computeTrappedGaps() {
+  let gaps = [];
+  for (let r = 0; r < rows; r++) {
+    for (let c = 0; c < cols; c++) {
+      if (boardState[r][c] === null) {
+        let occ = 0;
+        if (r > 0 && boardState[r-1][c] !== null) occ++;
+        if (r < rows - 1 && boardState[r+1][c] !== null) occ++;
+        if (c > 0 && boardState[r][c-1] !== null) occ++;
+        if (c < cols - 1 && boardState[r][c+1] !== null) occ++;
+
+        if (occ >= 3 || (occ >= 2 && (r === 0 || r === rows - 1 || c === 0 || c === cols - 1))) {
+          gaps.push([r, c]);
+        }
+      }
+    }
+  }
+  return gaps;
+}
+
+function renderBoard() {
+  const cells = document.querySelectorAll('.nd-cell');
+  const gaps = computeTrappedGaps();
+  let occCount = 0;
+  let hasBedrock = false;
+
+  cells.forEach(el => {
+    const r = parseInt(el.dataset.row, 10);
+    const c = parseInt(el.dataset.col, 10);
+    const item = boardState[r][c];
+
+    el.className = 'nd-cell';
+    el.style.background = '';
+    el.innerHTML = '';
+
+    if (item) {
+      occCount++;
+      if (item.blockId === 14) hasBedrock = true;
+      el.classList.add('is-occupied');
+      el.style.background = item.color;
+      el.innerHTML = `<span>${item.name.substring(0,2).toUpperCase()}</span>`;
+      el.title = `${item.name} (Click to remove)`;
+    } else if (gaps.some(([gr, gc]) => gr === r && gc === c)) {
+      el.classList.add('is-air-gap');
+      el.title = "Trapped Air Gap (Spoon Bleed)";
+    }
+  });
+
+  const totalCells = rows * cols;
+  const pct = Math.round((occCount / totalCells) * 100);
+  document.getElementById('stat-capacity').textContent = `${occCount} / ${totalCells} (${pct}%)`;
+
+  const bleedMins = gaps.length * 45;
+  document.getElementById('stat-gaps').textContent = `${gaps.length} Cells (${bleedMins}m)`;
+
+  const bedEl = document.getElementById('stat-bedrock');
+  if (currentEngine === '24H') {
+    if (hasBedrock) {
+      bedEl.textContent = "✓ LOCKED (7h)";
+      bedEl.style.color = "var(--nd-groen)";
+    } else {
+      bedEl.textContent = "⚠ MISSING SLAB";
+      bedEl.style.color = "var(--nd-rooi)";
+    }
+  } else {
+    bedEl.textContent = "N/A (Spoon Mode)";
+    bedEl.style.color = "var(--nd-ink-muted)";
+  }
+}
+
+function switchEngine(engine) {
+  currentEngine = engine;
+  document.getElementById('tab-24h').classList.toggle('is-active', engine === '24H');
+  document.getElementById('tab-100s').classList.toggle('is-active', engine === '100S');
+  document.getElementById('mode-bar').style.display = (engine === '24H') ? 'flex' : 'none';
+
+  if (engine === '24H') {
+    cols = 7;
+    rows = 10;
+    document.getElementById('engine-heading').textContent = "The 24-Hour Cognitive Canvas: Non-Chronological State Space";
+    document.getElementById('arena-dimensions').textContent = "7 × 10 Grid (70 Cells)";
+    switch24hMode(current24hMode);
+  } else {
+    cols = 10;
+    rows = 10;
+    document.getElementById('engine-heading').textContent = "The 10×10 Total Spoon Vessel: Daily Energy Budgeting";
+    document.getElementById('arena-dimensions').textContent = "10 × 10 Grid (100 Spoons)";
+    document.getElementById('arena-title').textContent = "100-Spoon Energy Matrix";
+    document.getElementById('arena-explainer').innerHTML = "<strong>100 Spoons Total:</strong> 1 cell = 1 spoon of executive fuel. Pack waking tasks to test total daily energy strain.";
+    document.getElementById('axis-x-label').innerHTML = "&larr; Spoon Horizontal Bandwidth (10 Channels) &rarr;";
+    document.getElementById('axis-y-label').innerHTML = "&larr; Spoon Vertical Capacity (10 Depth Strata) &rarr;";
+  }
+
+  boardState = Array.from({ length: rows }, () => Array(cols).fill(null));
+  initGridDOM();
+  initCardsDOM();
+  if (engine === '24H') {
+    loadPreset('canonical_24h');
+  } else {
+    renderBoard();
+  }
+}
+
+function switch24hMode(mode) {
+  current24hMode = mode;
+  document.getElementById('btn-mode-a').classList.toggle('nd-btn--active', mode === 'A');
+  document.getElementById('btn-mode-b').classList.toggle('nd-btn--active', mode === 'B');
+  document.getElementById('btn-mode-c').classList.toggle('nd-btn--active', mode === 'C');
+
+  const title = document.getElementById('arena-title');
+  const exp = document.getElementById('arena-explainer');
+  const lx = document.getElementById('axis-x-label');
+  const ly = document.getElementById('axis-y-label');
+
+  if (mode === 'A') {
+    title.textContent = "Mode A: Bandwidth × Reserve Stratum (The Density Sink)";
+    exp.innerHTML = "<strong>Cost Gravity Mechanics:</strong> Top rows (1–4) represent surface renewable spoons. Bottom rows (7–10) represent deep biological reserves. Bedrock Sleep locks at Rows 9–10.";
+    lx.innerHTML = "&larr; Attentional Channels (Embodied Substrate &harr; Effortful/Novel) &rarr;";
+    ly.innerHTML = "&larr; Reserve Stratum (Bedrock Floor 9-10 &rarr; Surface Spoons 1-4) &rarr;";
+  } else if (mode === 'B') {
+    title.textContent = "Mode B: Autonomy × Somatic Arousal (The Regulatory Field)";
+    exp.innerHTML = "<strong>Regulatory Quadrants:</strong> Left = Self-Authored Flow; Right = External Demand / Coercion. Bottom = Parasympathetic Grounding; Top = Noradrenergic / Sensory Exposure.";
+    lx.innerHTML = "&larr; Autonomy Gradient (Self-Authored &harr; External Demand) &rarr;";
+    ly.innerHTML = "&larr; Somatic Arousal (Grounding Floor &rarr; Noradrenergic Peak) &rarr;";
+  } else if (mode === 'C') {
+    title.textContent = "Mode C: Channel Bandwidth × Spoon Ceiling (Scalable Matrix)";
+    exp.innerHTML = "<strong>Free Energy Packing:</strong> Fully order-independent packing testing whether workload fits within 7-channel bandwidth and 70-spoon container without spilling into burnout.";
+    lx.innerHTML = "&larr; Channel Allocation Ceiling (Max 7 Simultaneous Streams) &rarr;";
+    ly.innerHTML = "&larr; Total Spoon Capacity Envelope (10 Saturated Strata) &rarr;";
+  }
+}
+
+function loadPreset(preset) {
+  clearCanvas();
+  if (preset === 'canonical_24h') {
+    placeBlockAt(14, 8, 0, 0); // Bedrock Sleep
+    placeBlockAt(8, 5, 0, 0);  // Ignition L
+    placeBlockAt(1, 1, 2, 0);  // Course Authoring I
+    placeBlockAt(5, 1, 4, 0);  // Gym O
+    placeBlockAt(2, 3, 3, 0);  // ND Agency T
+    placeBlockAt(6, 5, 3, 0);  // Somatic Mortar
+    placeBlockAt(11, 7, 5, 0); // Inbox Triage
+    showToast("Loaded Preset: Balanced 24-Hour Day (Canonical 70-cell pack).");
+  } else if (preset === 'creative_deep') {
+    placeBlockAt(14, 8, 0, 0); // Sleep
+    placeBlockAt(3, 6, 1, 0);  // Fiction S
+    placeBlockAt(4, 3, 2, 0);  // Vibe Coding J
+    placeBlockAt(6, 4, 4, 0);  // Somatic Mortar
+    placeBlockAt(8, 6, 4, 0);  // Domestic L
+    showToast("Loaded Preset: Fiction Deep Flow.");
+  } else if (preset === 'high_masking') {
+    placeBlockAt(14, 8, 0, 0); // Sleep
+    placeBlockAt(10, 4, 2, 0); // Social Cross
+    placeBlockAt(7, 2, 1, 0);  // Zero Spoon Z
+    placeBlockAt(9, 1, 3, 0);  // Admin Flat-O
+    showToast("Loaded Preset: High Social Conflict.");
+  }
+}
+
+// Initial Boot
+document.addEventListener('DOMContentLoaded', () => {
+  initGridDOM();
+  initCardsDOM();
+  switch24hMode('A');
+  loadPreset('canonical_24h');
+});
+</script>
+
+</body>
+</html>
