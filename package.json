@@ -4,8 +4,7 @@
   "description": "The Monotropic 24-Hour Cognitive Canvas — Non-Chronological Tetris Engine",
   "private": true,
   "scripts": {
-    "test": "echo \"Running UI consistency static check...\" && node scripts/check-ui.js",
-    "build": "echo \"Static build ready\"",
+    "test": "node scripts/check-ui.js",
     "start": "npx serve ."
   },
   "author": "helloshowup",
