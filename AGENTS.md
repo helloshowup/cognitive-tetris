@@ -44,13 +44,24 @@ specific to *this* repo wins on specifics — but never on the six rules.
    stop. Do not degrade gracefully without saying you did.
 7. **Always run the standard test procedure after UI edits.** The 4-gate verification protocol (`c:\Users\User\Projects\.agents\rules\ui-post-edit-test-protocol.md`) is mandatory. Execute it immediately after modifying any frontend UI, markup, or stylesheets.
 
-### How anything gets to production
+### How anything gets to production ("push to prod" protocol)
 
-Push to the production branch named in `CLAUDE.md` → the Vercel GitHub app builds it.
+Push to the production branch named in `CLAUDE.md` (`main`) → the Vercel GitHub app builds it.
 Any other branch → preview. There is no manual deploy step and no `vercel --prod`.
 If you find a `deploy.ps1` or similar, it is legacy: it produces deployments with
 `ref=-` that git cannot account for, which is exactly how `nd-agency`'s repo went stale
 for eight days without anyone noticing.
+
+#### When user says "push to prod" (or "push to production" / "deploy"):
+1. **Pre-Flight & Quality Gates**: Run project test and build suites (`npm test`, `npm run build`, `npm run typecheck`, `python test_api.py`, etc.). Verify clean working tree.
+2. **Commit Attribution Verification**: Verify commit author email is strictly `132871062+helloshowup@users.noreply.github.com`.
+3. **Branch & PR (main is protected)**: `main` cannot be pushed to directly (`GH006`). If on a feature/working branch, push to remote (`git push origin <branch>`).
+4. **Create & Merge PR**:
+   - Create PR: `gh pr create --base main --head <branch> --title "<type>(<scope>): <summary>" --body "<details>"`
+   - Merge PR: `gh pr merge --squash --delete-branch` (or `--auto --squash`).
+5. **Sync Local Main**: `git checkout main && git pull`.
+6. **Verify Deployment**: Confirm Vercel production deployment triggered / 200 OK. Report production URL and commit hash.
+*(Note: If operating as a subagent under Master Dispatcher, do NOT open PRs autonomously; report changes in Result Envelope for batch push).*
 
 ### Suggested agent personas
 
