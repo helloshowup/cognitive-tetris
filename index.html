@@ -73,7 +73,8 @@ body {
    ------------------------------------------------------------ */
 .nd-header-sticky {
   position: sticky;
-  top: 0;
+  /* Under the shared Launchpad nav bar, which publishes its height. */
+  top: var(--lp-nav-height, 0px);
   z-index: 50;
   background: var(--nd-paper);
   border-bottom: var(--nd-border);
@@ -514,11 +515,14 @@ body {
 </head>
 
 <body class="nd-root">
+<!-- The shared Launchpad nav bar (nda-launchpad shared-nav/README.md).
+     Generated there; re-sync rather than edit launchpad-nav/. -->
+<launchpad-nav></launchpad-nav>
+<script src="launchpad-nav/launchpad-nav.js" defer></script>
 
 <!-- 3-ZONE STICKY HEADER -->
 <header class="nd-header-sticky">
   <div class="nd-header__left">
-    <a href="https://nda-launchpad.vercel.app/" class="nd-btn" title="Escape Hatch to Launchpad">&larr; Launchpad</a>
     <div class="nd-mark-link">
       <div class="nd-mark">TETRIS</div>
       <div class="nd-header__title">Cognitive Geometry</div>
