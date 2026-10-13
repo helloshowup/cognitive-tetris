@@ -33,9 +33,15 @@ specific to *this* repo wins on specifics — but never on the six rules.
    repo. `vercel link` writes a `VERCEL_OIDC_TOKEN` into `.env.local`; that is expected
    and must stay ignored. Values live in `_secrets/.env`; the map is
    `_secrets/vercel-passwords.md`. Never paste a secret into chat.
-4. **Consume the design system, never edit it.** Changes go upstream to
-   `nd-design-system` and get re-synced. Editing a vendored copy means the next sync
-   silently reverts you.
+4. **Consume the design system, never edit it.** The system these projects consume
+   is **Padkleur** - Bryce's own operation design system, `--nd-*` tokens, upstream
+   at `_tools/nd-design-system`. Changes go there and get re-synced. Editing a
+   vendored copy means the next sync silently reverts you.
+   **Padkleur is not The ND Agency brand system.** ND Agency brand work (`--nda-*`,
+   Murray Kingston's four colours) belongs in the brand bundle at
+   `nda-website/ds-bundle` and never goes upstream into Padkleur. The two systems
+   are never reconciled, aligned or cross-populated. Tell them apart by token
+   prefix, never by folder name.
 5. **No dry runs, no fixtures, no rehearsal artefacts.** Verify by doing the real thing
    and reading the real result. Claude cannot delete files here, so every scratch
    artefact becomes a hand-clean chore for Bryce.
